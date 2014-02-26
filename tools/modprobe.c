@@ -91,6 +91,8 @@ static const struct option cmdopts[] = {
 	{"dirname", required_argument, 0, 'd'},
 	{"set-version", required_argument, 0, 'S'},
 
+	{"allow-unsupported-modules", no_argument, 0, 128},
+
 	{"syslog", no_argument, 0, 's'},
 	{"quiet", no_argument, 0, 'q'},
 	{"verbose", no_argument, 0, 'v'},
@@ -912,6 +914,9 @@ static int do_modprobe(int argc, char **orig_argv)
 			break;
 		case 'S':
 			kversion = optarg;
+			break;
+		case 128:
+			/* --allow-unsupported-modules does nothing for now */
 			break;
 		case 's':
 			env_modprobe_options_append("-s");
