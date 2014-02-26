@@ -650,6 +650,9 @@ static int kmod_config_parse(struct kmod_config *config, int fd,
 				|| streq(cmd, "config")) {
 			ERR(ctx, "%s: command %s is deprecated and not parsed anymore\n",
 								filename, cmd);
+		} else if (streq(cmd, "allow_unsupported_modules")) {
+			/* dummy option for now */
+			;
 		} else {
 syntax_error:
 			ERR(ctx, "%s line %u: ignoring bad line starting with '%s'\n",
