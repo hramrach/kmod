@@ -39,6 +39,8 @@
 
 #include "kmod.h"
 
+#include "libkmod/libkmod-unsupported.h"
+
 static int log_priority = LOG_CRIT;
 static int use_syslog = 0;
 #define LOG(...) log_printf(log_priority, __VA_ARGS__)
@@ -815,6 +817,7 @@ static int do_modprobe(int argc, char **orig_argv)
 	const char *dirname = NULL;
 	const char *root = NULL;
 	const char *kversion = NULL;
+	int allow_unsupported = 0;
 	int use_all = 0;
 	int do_remove = 0;
 	int do_show_config = 0;
@@ -916,7 +919,7 @@ static int do_modprobe(int argc, char **orig_argv)
 			kversion = optarg;
 			break;
 		case 128:
-			/* --allow-unsupported-modules does nothing for now */
+			allow_unsupported = 1;
 			break;
 		case 's':
 			env_modprobe_options_append("-s");
@@ -988,6 +991,9 @@ static int do_modprobe(int argc, char **orig_argv)
 	}
 
 	log_setup_kmod_log(ctx, verbose);
+
+	if (allow_unsupported)
+		kmod_internal_allow_unsupported(ctx);
 
 	kmod_load_resources(ctx);
 
