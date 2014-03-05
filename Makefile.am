@@ -106,7 +106,9 @@ libkmod_libkmod_la_LIBADD = \
 	${libpkcs7asn1c_LIBS}
 
 noinst_LTLIBRARIES += libkmod/libkmod-internal.la
-libkmod_libkmod_internal_la_SOURCES = $(libkmod_libkmod_la_SOURCES)
+libkmod_libkmod_internal_la_SOURCES = $(libkmod_libkmod_la_SOURCES) \
+				      libkmod/libkmod-unsupported.c \
+				      libkmod/libkmod-unsupported.h
 libkmod_libkmod_internal_la_LDFLAGS = $(AM_LDFLAGS) \
 	-Wl,--version-script=$(top_srcdir)/libkmod/libkmod.sym
 libkmod_libkmod_internal_la_DEPENDENCIES  = $(libkmod_libkmod_la_DEPENDENCIES)
