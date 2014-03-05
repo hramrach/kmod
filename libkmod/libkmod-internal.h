@@ -122,6 +122,7 @@ struct kmod_config {
 	struct kmod_list *softdeps;
 
 	struct kmod_list *paths;
+	int block_unsupported;
 };
 
 int kmod_config_new(struct kmod_ctx *ctx, struct kmod_config **config, const char * const *config_paths) __attribute__((nonnull(1, 2,3)));

@@ -861,6 +861,24 @@ KMOD_EXPORT int kmod_module_remove_module(struct kmod_module *mod,
 
 extern long init_module(const void *mem, unsigned long len, const char *args);
 
+static int check_module_supported(struct kmod_module *mod)
+{
+	char **strings;
+	int i, count;
+	struct kmod_elf *elf;
+
+	elf = kmod_file_get_elf(mod->file);
+	count = kmod_elf_get_strings(elf, ".modinfo", &strings);
+	if (count < 0)
+		return count;
+	for (i = 0; i < count; i++)
+		if (streq(strings[i], "supported=yes") ||
+		    streq(strings[i], "supported=external")) {
+			return 1;
+		}
+	return 0;
+}
+
 /**
  * kmod_module_insert_module:
  * @mod: kmod module
@@ -886,6 +904,7 @@ KMOD_EXPORT int kmod_module_insert_module(struct kmod_module *mod,
 	struct kmod_elf *elf;
 	const char *path;
 	const char *args = options ? options : "";
+	const struct kmod_config *config = kmod_get_config(mod->ctx);
 
 	if (mod == NULL)
 		return -ENOENT;
@@ -901,6 +920,18 @@ KMOD_EXPORT int kmod_module_insert_module(struct kmod_module *mod,
 		if (mod->file == NULL) {
 			err = -errno;
 			return err;
+		}
+	}
+
+	if (config->block_unsupported) {
+		err = check_module_supported(mod);
+		if (err < 0)
+			return err;
+		else if (err == 0) {
+			ERR(mod->ctx, "module '%s' is unsupported\n", mod->name);
+			ERR(mod->ctx, "Use --allow-unsupported or set allow_unsupported_modules 1 in\n");
+			ERR(mod->ctx, "/etc/modprobe.d/10-unsupported-modules.conf\n");
+			return -EPERM;
 		}
 	}
 
