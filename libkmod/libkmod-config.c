@@ -651,8 +651,16 @@ static int kmod_config_parse(struct kmod_config *config, int fd,
 			ERR(ctx, "%s: command %s is deprecated and not parsed anymore\n",
 								filename, cmd);
 		} else if (streq(cmd, "allow_unsupported_modules")) {
-			/* dummy option for now */
-			;
+			char *param = strtok_r(NULL, "\t ", &saveptr);
+
+			if (param == NULL)
+				goto syntax_error;
+			if (streq(param, "yes") || streq(param, "1"))
+				config->block_unsupported = 0;
+			else if (streq(param, "no") || streq(param, "0"))
+				config->block_unsupported = 1;
+			else
+				goto syntax_error;
 		} else {
 syntax_error:
 			ERR(ctx, "%s line %u: ignoring bad line starting with '%s'\n",
