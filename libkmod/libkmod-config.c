@@ -567,6 +567,18 @@ static int kmod_config_parse_kcmdline(struct kmod_config *config)
 }
 
 /*
+ * Check if kernel is built with the SUSE "suppported-flag" patch
+ */
+static int is_suse_kernel(void)
+{
+	if (access("/proc/sys/kernel/", F_OK) == 0 &&
+	    access("/proc/sys/kernel/unsupported", F_OK) == -1 &&
+	    errno == ENOENT)
+		return 0;
+	return 1;
+}
+
+/*
  * Take an fd and own it. It will be closed on return. filename is used only
  * for debug messages
  */
@@ -657,9 +669,10 @@ static int kmod_config_parse(struct kmod_config *config, int fd,
 				goto syntax_error;
 			if (streq(param, "yes") || streq(param, "1"))
 				config->block_unsupported = 0;
-			else if (streq(param, "no") || streq(param, "0"))
-				config->block_unsupported = 1;
-			else
+			else if (streq(param, "no") || streq(param, "0")) {
+				if (is_suse_kernel())
+					config->block_unsupported = 1;
+			} else
 				goto syntax_error;
 		} else {
 syntax_error:
