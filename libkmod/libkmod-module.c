@@ -2554,7 +2554,7 @@ KMOD_EXPORT const char *kmod_module_version_get_symbol(const struct kmod_list *e
 {
 	struct kmod_module_version *version;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return NULL;
 
 	version = entry->data;
@@ -2567,14 +2567,13 @@ KMOD_EXPORT const char *kmod_module_version_get_symbol(const struct kmod_list *e
  *
  * Get the crc of a kmod module version.
  *
- * Returns: the crc of this kmod module version on success or NULL on
- * failure. The string is owned by the version, do not free it.
+ * Returns: the crc of this kmod module version if available, otherwise default to 0.
  */
 KMOD_EXPORT uint64_t kmod_module_version_get_crc(const struct kmod_list *entry)
 {
 	struct kmod_module_version *version;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return 0;
 
 	version = entry->data;
@@ -2695,7 +2694,7 @@ KMOD_EXPORT const char *kmod_module_symbol_get_symbol(const struct kmod_list *en
 {
 	struct kmod_module_symbol *symbol;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return NULL;
 
 	symbol = entry->data;
@@ -2708,14 +2707,13 @@ KMOD_EXPORT const char *kmod_module_symbol_get_symbol(const struct kmod_list *en
  *
  * Get the crc of a kmod module symbol.
  *
- * Returns: the crc of this kmod module symbol on success or NULL on
- * failure. The string is owned by the symbol, do not free it.
+ * Returns: the crc of this kmod module symbol if available, otherwise default to 0.
  */
 KMOD_EXPORT uint64_t kmod_module_symbol_get_crc(const struct kmod_list *entry)
 {
 	struct kmod_module_symbol *symbol;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return 0;
 
 	symbol = entry->data;
@@ -2841,7 +2839,7 @@ KMOD_EXPORT const char *kmod_module_dependency_symbol_get_symbol(const struct km
 {
 	struct kmod_module_dependency_symbol *dependency_symbol;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return NULL;
 
 	dependency_symbol = entry->data;
@@ -2854,14 +2852,13 @@ KMOD_EXPORT const char *kmod_module_dependency_symbol_get_symbol(const struct km
  *
  * Get the crc of a kmod module dependency_symbol.
  *
- * Returns: the crc of this kmod module dependency_symbol on success or NULL on
- * failure. The string is owned by the dependency_symbol, do not free it.
+ * Returns: the crc of this kmod module dependency_symbol if available, otherwise default to 0.
  */
 KMOD_EXPORT uint64_t kmod_module_dependency_symbol_get_crc(const struct kmod_list *entry)
 {
 	struct kmod_module_dependency_symbol *dependency_symbol;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return 0;
 
 	dependency_symbol = entry->data;
@@ -2881,7 +2878,7 @@ KMOD_EXPORT int kmod_module_dependency_symbol_get_bind(const struct kmod_list *e
 {
 	struct kmod_module_dependency_symbol *dependency_symbol;
 
-	if (entry == NULL)
+	if (entry == NULL || entry->data == NULL)
 		return 0;
 
 	dependency_symbol = entry->data;
