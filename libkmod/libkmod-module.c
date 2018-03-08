@@ -2304,7 +2304,7 @@ KMOD_EXPORT int kmod_module_get_info(const struct kmod_module *mod, struct kmod_
 	struct kmod_elf *elf;
 	char **strings;
 	int i, count, ret = -ENOMEM;
-	struct kmod_signature_info sig_info;
+	struct kmod_signature_info *sig_info = NULL;
 
 	if (mod == NULL || list == NULL)
 		return -ENOENT;
@@ -2341,32 +2341,32 @@ KMOD_EXPORT int kmod_module_get_info(const struct kmod_module *mod, struct kmod_
 			goto list_error;
 	}
 
-	if (kmod_module_signature_info(mod->file, &sig_info)) {
+	if (sig_info = kmod_module_signature_info(mod->file)) {
 		struct kmod_list *n;
 
 		n = kmod_module_info_append(list, "sig_id", strlen("sig_id"),
-				sig_info.id_type, strlen(sig_info.id_type));
+				sig_info->id_type, strlen(sig_info->id_type));
 		if (n == NULL)
 			goto list_error;
 		count++;
 
 		n = kmod_module_info_append(list, "signer", strlen("signer"),
-				sig_info.signer, sig_info.signer_len);
+				sig_info->signer, sig_info->signer_len);
 		if (n == NULL)
 			goto list_error;
 		count++;
 
 
 		n = kmod_module_info_append_hex(list, "sig_key", strlen("sig_key"),
-						sig_info.key_id,
-						sig_info.key_id_len);
+						sig_info->key_id,
+						sig_info->key_id_len);
 		if (n == NULL)
 			goto list_error;
 		count++;
 
 		n = kmod_module_info_append(list,
 				"sig_hashalgo", strlen("sig_hashalgo"),
-				sig_info.hash_algo, strlen(sig_info.hash_algo));
+				sig_info->hash_algo, strlen(sig_info->hash_algo));
 		if (n == NULL)
 			goto list_error;
 		count++;
@@ -2377,8 +2377,8 @@ KMOD_EXPORT int kmod_module_get_info(const struct kmod_module *mod, struct kmod_
 		 */
 		n = kmod_module_info_append_hex(list, "signature",
 						strlen("signature"),
-						sig_info.sig,
-						sig_info.sig_len);
+						sig_info->sig,
+						sig_info->sig_len);
 
 		if (n == NULL)
 			goto list_error;
@@ -2389,7 +2389,8 @@ KMOD_EXPORT int kmod_module_get_info(const struct kmod_module *mod, struct kmod_
 
 list_error:
 	/* aux structures freed in normal case also */
-	kmod_module_signature_info_free(&sig_info);
+	if (sig_info)
+		kmod_module_signature_info_free(sig_info);
 
 	if (ret < 0) {
 		kmod_module_info_free_list(*list);

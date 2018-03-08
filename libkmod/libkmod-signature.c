@@ -93,13 +93,17 @@ struct module_signature {
 	uint32_t sig_len;    /* Length of signature data (big endian) */
 };
 
-static bool
+static struct kmod_signature_info *
 kmod_module_signature_info_default(const char *mem,
 				   off_t size,
 				   const struct module_signature *modsig,
-				   size_t sig_len,
-				   struct kmod_signature_info *sig_info)
+				   size_t sig_len)
 {
+	struct kmod_signature_info *sig_info = malloc(sizeof *sig_info);
+
+	if (!sig_info)
+		return NULL;
+
 	size -= sig_len;
 	sig_info->sig = mem + size;
 	sig_info->sig_len = sig_len;
@@ -119,7 +123,7 @@ kmod_module_signature_info_default(const char *mem,
 	sig_info->free = NULL;
 	sig_info->private = NULL;
 
-	return true;
+	return sig_info;
 }
 
 static void kmod_module_signature_info_pkcs7_free(void *s)
@@ -129,13 +133,13 @@ static void kmod_module_signature_info_pkcs7_free(void *s)
 	pkcs7_free_cert(si->private);
 }
 
-static bool
+static struct kmod_signature_info *
 kmod_module_signature_info_pkcs7(const char *mem,
 				 off_t size,
 				 const struct module_signature *modsig,
-				 size_t sig_len,
-				 struct kmod_signature_info *sig_info)
+				 size_t sig_len)
 {
+	struct kmod_signature_info *sig_info = NULL;
 	const char *pkcs7_raw;
 	struct pkcs7_cert *cert;
 
@@ -144,7 +148,13 @@ kmod_module_signature_info_pkcs7(const char *mem,
 
 	cert = pkcs7_parse_cert(pkcs7_raw, sig_len);
 	if (cert == NULL)
-		return false;
+		return NULL;
+
+	sig_info = malloc(sizeof *sig_info);
+	if (!sig_info) {
+		free(cert);
+		return NULL;
+	}
 
 	sig_info->private = cert;
 	sig_info->free = kmod_module_signature_info_pkcs7_free;
@@ -162,7 +172,7 @@ kmod_module_signature_info_pkcs7(const char *mem,
 	sig_info->hash_algo = cert->hash_algo;
 	sig_info->id_type = pkey_id_type[modsig->id_type];
 
-	return true;
+	return sig_info;
 }
 
 #define SIG_MAGIC "~Module signature appended~\n"
@@ -178,48 +188,45 @@ kmod_module_signature_info_pkcs7(const char *mem,
  * [ SIG_MAGIC               ]
  */
 
-bool kmod_module_signature_info(const struct kmod_file *file, struct kmod_signature_info *sig_info)
+struct kmod_signature_info *kmod_module_signature_info(const struct kmod_file *file)
 {
 	const char *mem;
 	off_t size;
 	const struct module_signature *modsig;
 	size_t sig_len;
-	bool ret;
 
 	size = kmod_file_get_size(file);
 	mem = kmod_file_get_contents(file);
 	if (size < (off_t)strlen(SIG_MAGIC))
-		return false;
+		return NULL;
 	size -= strlen(SIG_MAGIC);
 	if (memcmp(SIG_MAGIC, mem + size, strlen(SIG_MAGIC)) != 0)
-		return false;
+		return NULL;
 
 	if (size < (off_t)sizeof(struct module_signature))
-		return false;
+		return NULL;
 	size -= sizeof(struct module_signature);
 	modsig = (struct module_signature *)(mem + size);
 	if (modsig->algo >= PKEY_ALGO__LAST ||
 			modsig->hash >= PKEY_HASH__LAST ||
 			modsig->id_type >= PKEY_ID_TYPE__LAST)
-		return false;
+		return NULL;
 	sig_len = be32toh(get_unaligned(&modsig->sig_len));
 	if (sig_len == 0 ||
 	    size < (int64_t)(modsig->signer_len + modsig->key_id_len + sig_len))
-		return false;
+		return NULL;
 
 	if (modsig->id_type == PKEY_ID_PKCS7)
-		ret = kmod_module_signature_info_pkcs7(mem, size,
-						       modsig, sig_len,
-						       sig_info);
+		return kmod_module_signature_info_pkcs7(mem, size,
+						        modsig, sig_len);
 	else
-		ret = kmod_module_signature_info_default(mem, size,
-							 modsig, sig_len,
-							 sig_info);
-	return ret;
+		return kmod_module_signature_info_default(mem, size,
+							  modsig, sig_len);
 }
 
 void kmod_module_signature_info_free(struct kmod_signature_info *sig_info)
 {
 	if (sig_info->free)
 		sig_info->free(sig_info);
+	free(sig_info);
 }

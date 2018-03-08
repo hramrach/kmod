@@ -192,5 +192,5 @@ struct kmod_signature_info {
 	void (*free)(void *);
 	void *private;
 };
-bool kmod_module_signature_info(const struct kmod_file *file, struct kmod_signature_info *sig_info) _must_check_ __attribute__((nonnull(1, 2)));
+struct kmod_signature_info *kmod_module_signature_info(const struct kmod_file *file) _must_check_ __attribute__((nonnull(1)));
 void kmod_module_signature_info_free(struct kmod_signature_info *sig_info) __attribute__((nonnull));
