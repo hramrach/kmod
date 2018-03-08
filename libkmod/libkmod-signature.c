@@ -166,7 +166,7 @@ kmod_module_signature_info_pkcs7(const char *mem,
 	sig_info->key_id_len = cert->key_id_size;
 
 	sig_info->signer = cert->signer;
-	sig_info->signer_len = strlen(cert->signer);
+	sig_info->signer_len = cert->signer ? strlen(cert->signer) : 0;
 
 	sig_info->algo = NULL;
 	sig_info->hash_algo = cert->hash_algo;
