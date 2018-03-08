@@ -1,0 +1,135 @@
+PKCS7 DEFINITIONS ::=
+BEGIN
+
+PKCS7ContentInfo ::= SEQUENCE {
+	contentType	ContentType,
+	content		[0] EXPLICIT SignedData OPTIONAL
+}
+
+ContentType ::= OBJECT IDENTIFIER
+
+SignedData ::= SEQUENCE {
+	version			INTEGER,
+	digestAlgorithms	DigestAlgorithmIdentifiers,
+	contentInfo		ContentInfo,
+	certificates		CHOICE {
+		certSet		[0] IMPLICIT ExtendedCertificatesAndCertificates,
+		certSequence	[2] IMPLICIT Certificates
+	} OPTIONAL,
+	crls CHOICE {
+		crlSet		[1] IMPLICIT CertificateRevocationLists,
+		crlSequence	[3] IMPLICIT CRLSequence
+	} OPTIONAL,
+	signerInfos		SignerInfos
+}
+
+ContentInfo ::= SEQUENCE {
+	contentType	ContentType,
+	content		[0] EXPLICIT Data OPTIONAL
+}
+
+Data ::= ANY
+
+DigestAlgorithmIdentifiers ::= CHOICE {
+	daSet			SET OF DigestAlgorithmIdentifier,
+	daSequence		SEQUENCE OF DigestAlgorithmIdentifier
+}
+
+DigestAlgorithmIdentifier ::= SEQUENCE {
+	algorithm   OBJECT IDENTIFIER,
+	parameters  ANY OPTIONAL
+}
+
+--
+-- Certificates and certificate lists
+--
+ExtendedCertificatesAndCertificates ::= SET OF Certificate
+
+Certificates ::= SEQUENCE OF Certificate
+
+CertificateRevocationLists ::= SET OF CertificateList
+
+CertificateList ::= SEQUENCE OF Certificate -- This may be defined incorrectly
+
+CRLSequence ::= SEQUENCE OF CertificateList
+
+Certificate ::= ANY -- X.509, Skip
+
+--
+-- Signer information
+--
+SignerInfos ::= CHOICE {
+	siSet		SET OF SignerInfo,
+	siSequence	SEQUENCE OF SignerInfo
+}
+
+SignerInfo ::= SEQUENCE {
+	version			INTEGER,
+	sid			SignerIdentifier, -- CMS variant, not PKCS#7
+	digestAlgorithm		DigestAlgorithmIdentifier,
+	authenticatedAttributes	CHOICE {
+		aaSet		[0] IMPLICIT SetOfAuthenticatedAttribute,
+		aaSequence	[2] EXPLICIT SEQUENCE OF AuthenticatedAttribute
+			-- Explicit because easier to compute digest on
+			-- sequence of attributes and then reuse encoded
+			-- sequence in aaSequence.
+	} OPTIONAL,
+	digestEncryptionAlgorithm
+				DigestEncryptionAlgorithmIdentifier,
+	encryptedDigest		EncryptedDigest,
+	unauthenticatedAttributes CHOICE {
+		uaSet		[1] IMPLICIT SET OF UnauthenticatedAttribute,
+		uaSequence	[3] IMPLICIT SEQUENCE OF UnauthenticatedAttribute
+	} OPTIONAL
+}
+
+SignerIdentifier ::= CHOICE {
+	-- RFC5652 sec 5.3
+	issuerAndSerialNumber IssuerAndSerialNumber,
+        subjectKeyIdentifier [0] IMPLICIT SubjectKeyIdentifier
+}
+
+IssuerAndSerialNumber ::= SEQUENCE {
+	issuer			ANY,
+	serialNumber		ANY
+}
+
+CertificateSerialNumber ::= INTEGER
+
+SubjectKeyIdentifier ::= OCTET STRING
+
+SetOfAuthenticatedAttribute ::= SET OF AuthenticatedAttribute
+
+Values ::= SET OF ANY
+
+AuthenticatedAttribute ::= SEQUENCE {
+	type			OBJECT IDENTIFIER,
+	values			Values
+}
+
+UnauthenticatedAttribute ::= SEQUENCE {
+	type			OBJECT IDENTIFIER,
+	values			Values
+}
+
+DigestEncryptionAlgorithmIdentifier ::= SEQUENCE {
+	algorithm		OBJECT IDENTIFIER,
+	parameters		ANY OPTIONAL
+}
+
+EncryptedDigest ::= OCTET STRING
+
+---
+--- X.500 Name
+---
+Name ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
+
+AttributeValueAssertion ::= SEQUENCE {
+	attributeType		OBJECT IDENTIFIER,
+	attributeValue		ANY
+}
+
+END
+

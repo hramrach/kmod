@@ -271,6 +271,7 @@ AC_CONFIG_FILES([
 	man/Makefile
 	libkmod/docs/Makefile
 	libkmod/docs/version.xml
+	libkmod/pkcs7/asn1c-gen/Makefile
 ])
 
 

@@ -1,4 +1,4 @@
-SUBDIRS = . libkmod/docs
+SUBDIRS = . libkmod/docs libkmod/pkcs7/asn1c-gen
 
 if BUILD_MANPAGES
 SUBDIRS += man
@@ -62,6 +62,13 @@ shared_libshared_la_SOURCES = \
 include_HEADERS = libkmod/libkmod.h
 lib_LTLIBRARIES = libkmod/libkmod.la
 
+
+PKCS7_SRCS = \
+	libkmod/pkcs7/pkcs7_parser.c \
+	libkmod/pkcs7/pkcs7_parser.h
+
+AM_CPPFLAGS += -Ilibkmod/pkcs7/asn1c-gen -D_DEFAULT_SOURCE
+
 libkmod_libkmod_la_SOURCES = \
 	libkmod/libkmod.h \
 	libkmod/libkmod-internal.h \
@@ -73,7 +80,14 @@ libkmod_libkmod_la_SOURCES = \
 	libkmod/libkmod-module.c \
 	libkmod/libkmod-file.c \
 	libkmod/libkmod-elf.c \
-	libkmod/libkmod-signature.c
+	libkmod/libkmod-signature.c \
+	$(PKCS7_SRCS)
+
+libpkcs7asn1c = libkmod/pkcs7/asn1c-gen/libpkcs7asn1c.la
+libpkcs7asn1c_LIBS = ${libpkcs7asn1c}
+
+${libpkcs7asn1c}:
+	${MAKE} -C libkmod/pkcs7/asn1c-gen
 
 EXTRA_DIST += libkmod/libkmod.sym
 EXTRA_DIST += libkmod/README \
@@ -84,10 +98,12 @@ libkmod_libkmod_la_LDFLAGS = $(AM_LDFLAGS) \
 	-Wl,--version-script=$(top_srcdir)/libkmod/libkmod.sym
 libkmod_libkmod_la_DEPENDENCIES = \
 	shared/libshared.la \
+	${libpkcs7asn1c} \
 	${top_srcdir}/libkmod/libkmod.sym
 libkmod_libkmod_la_LIBADD = \
 	shared/libshared.la \
-	${liblzma_LIBS} ${zlib_LIBS}
+	${liblzma_LIBS} ${zlib_LIBS} \
+	${libpkcs7asn1c_LIBS}
 
 noinst_LTLIBRARIES += libkmod/libkmod-internal.la
 libkmod_libkmod_internal_la_SOURCES = $(libkmod_libkmod_la_SOURCES)
