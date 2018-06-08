@@ -1067,6 +1067,19 @@ static struct kmod_config_iter *kmod_config_iter_new(const struct kmod_ctx* ctx,
  * @short_description: retrieve current libkmod configuration
  */
 
+/*
+ * kmod_config_unsupported_allowed:
+ * @ctx: kmod library context
+ *
+ * Retrieve status of unsupported modules
+ */
+KMOD_EXPORT bool kmod_config_unsupported_allowed(const struct kmod_ctx *ctx)
+{
+	struct kmod_config *config = (struct kmod_config *)kmod_get_config(ctx);
+
+	return !config->block_unsupported;
+}
+
 /**
  * kmod_config_get_blacklists:
  * @ctx: kmod library context
