@@ -115,6 +115,7 @@ const char *kmod_config_iter_get_key(const struct kmod_config_iter *iter);
 const char *kmod_config_iter_get_value(const struct kmod_config_iter *iter);
 bool kmod_config_iter_next(struct kmod_config_iter *iter);
 void kmod_config_iter_free_iter(struct kmod_config_iter *iter);
+bool kmod_config_unsupported_allowed(const struct kmod_ctx *ctx);
 
 /*
  * kmod_module

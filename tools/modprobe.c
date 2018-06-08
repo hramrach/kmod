@@ -201,6 +201,11 @@ static int show_config(struct kmod_ctx *ctx)
 		kmod_config_iter_free_iter(iter);
 	}
 
+	// SUSE specific option:
+	if (!kmod_config_unsupported_allowed(ctx)) {
+		puts("allow_unsupported_modules   0\n");
+	}
+
 	puts("\n# End of configuration files. Dumping indexes now:\n");
 	fflush(stdout);
 
