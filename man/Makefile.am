@@ -17,9 +17,14 @@ EXTRA_DIST = $(MAN5:%.5=%.xml) $(MAN8:%.8=%.xml)
 CLEANFILES = $(dist_man_MANS)
 
 %.5 %.8: %.xml
-	$(AM_V_XSLT)$(XSLT) \
+	$(AM_V_XSLT)if [ -n '$(prefix)' ] ; then \
+		sed -e 's|@PREFIX@|$(prefix)|g' $< ; \
+	else \
+		sed -e '/@PREFIX@/d' $< ; \
+	fi | \
+	$(XSLT) \
 		-o $@ \
 		--nonet \
 		--stringparam man.output.quietly 1 \
 		--param funcsynopsis.style "'ansi'" \
-		http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+		http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl -
