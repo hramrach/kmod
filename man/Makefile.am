@@ -28,4 +28,4 @@ CLEANFILES = $(dist_man_MANS)
 		--nonet \
 		--stringparam man.output.quietly 1 \
 		--param funcsynopsis.style "'ansi'" \
-		http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl -
+		/usr/share/xml/docbook/stylesheet/nwalsh/current/manpages/docbook.xsl -
