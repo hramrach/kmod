@@ -115,6 +115,7 @@ static int kmod_config(int argc, char *argv[])
 	unsigned i;
 	printf("{\"distconfdir\":\"" DISTCONFDIR "\""
 			",\"sysconfdir\":\"" SYSCONFDIR "\""
+			",\"module_directory\":\"" MODULE_DIRECTORY "\""
 			",\"module_signature\":["
 #ifdef ENABLE_OPENSSL
 			"\"PKCS#7\","
