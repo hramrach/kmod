@@ -37,9 +37,11 @@ static const struct option options[] = {
 };
 
 static const struct kmod_cmd kmod_cmd_help;
+static const struct kmod_cmd kmod_cmd_config;
 
 static const struct kmod_cmd *kmod_cmds[] = {
 	&kmod_cmd_help,
+	&kmod_cmd_config,
 	&kmod_cmd_list,
 	&kmod_cmd_static_nodes,
 
@@ -93,6 +95,44 @@ static const struct kmod_cmd kmod_cmd_help = {
 	.name = "help",
 	.cmd = kmod_help,
 	.help = "Show help message",
+};
+
+static const char *compressions[] = {
+#ifdef ENABLE_ZSTD
+			"zstd",
+#endif
+#ifdef ENABLE_XZ
+			"xz",
+#endif
+#ifdef ENABLE_ZLIB
+			"gz",
+#endif
+			NULL
+};
+
+static int kmod_config(int argc, char *argv[])
+{
+	unsigned i;
+	printf("{\"distconfdir\":\"" DISTCONFDIR "\""
+			",\"sysconfdir\":\"" SYSCONFDIR "\""
+			",\"module_signature\":["
+#ifdef ENABLE_OPENSSL
+			"\"PKCS#7\","
+#endif
+			"\"legacy\"]"
+			",\"module_compression\":[");
+	for(i = 0; compressions[i]; i++) {
+		printf("%s\"%s\"", i ? "," : "", compressions[i]);
+	}
+	printf("]}\n");
+
+	return EXIT_SUCCESS;
+}
+
+static const struct kmod_cmd kmod_cmd_config = {
+	.name = "config",
+	.cmd = kmod_config,
+	.help = "Show compile time options in JSON",
 };
 
 static int handle_kmod_commands(int argc, char *argv[])
