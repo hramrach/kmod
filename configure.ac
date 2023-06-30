@@ -21,6 +21,9 @@ LT_INIT([disable-static pic-only])
 AS_IF([test "x$enable_static" = "xyes"], [AC_MSG_ERROR([--enable-static is not supported by kmod])])
 AS_IF([test "x$enable_largefile" = "xno"], [AC_MSG_ERROR([--disable-largefile is not supported by kmod])])
 
+module_compressions=""
+module_signatures="legacy"
+
 #####################################################################
 # Program checks and configurations
 #####################################################################
@@ -93,6 +96,7 @@ AC_ARG_WITH([zstd],
 AS_IF([test "x$with_zstd" != "xno"], [
 	PKG_CHECK_MODULES([libzstd], [libzstd >= 1.4.4])
 	AC_DEFINE([ENABLE_ZSTD], [1], [Enable Zstandard for modules.])
+	module_compressions="zstd $module_compressions"
 ], [
 	AC_MSG_NOTICE([Zstandard support not requested])
 ])
@@ -104,6 +108,7 @@ AC_ARG_WITH([xz],
 AS_IF([test "x$with_xz" != "xno"], [
 	PKG_CHECK_MODULES([liblzma], [liblzma >= 4.99])
 	AC_DEFINE([ENABLE_XZ], [1], [Enable Xz for modules.])
+	module_compressions="xz $module_compressions"
 ], [
 	AC_MSG_NOTICE([Xz support not requested])
 ])
@@ -115,6 +120,7 @@ AC_ARG_WITH([zlib],
 AS_IF([test "x$with_zlib" != "xno"], [
 	PKG_CHECK_MODULES([zlib], [zlib])
 	AC_DEFINE([ENABLE_ZLIB], [1], [Enable zlib for modules.])
+	module_compressions="gzip $module_compressions"
 ], [
 	AC_MSG_NOTICE([zlib support not requested])
 ])
@@ -126,6 +132,7 @@ AC_ARG_WITH([openssl],
 AS_IF([test "x$with_openssl" != "xno"], [
 	PKG_CHECK_MODULES([libcrypto], [libcrypto >= 1.1.0])
 	AC_DEFINE([ENABLE_OPENSSL], [1], [Enable openssl for modinfo.])
+	module_signatures="PKCS7 $module_signatures"
 	AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <openssl/ssl.h>
 		int nid = NID_sm3;]])], [
 		AC_MSG_NOTICE([openssl supports sm3])
@@ -297,11 +304,15 @@ AC_DEFINE_UNQUOTED(KMOD_FEATURES, ["$with_features"], [Features in this build])
 # Generate files from *.in
 #####################################################################
 
+AC_SUBST([module_compressions], $module_compressions)
+AC_SUBST([module_signatures], $module_signatures)
+
 AC_CONFIG_FILES([
 	Makefile
 	man/Makefile
 	libkmod/docs/Makefile
 	libkmod/docs/version.xml
+	tools/kmod.pc
 ])
 
 

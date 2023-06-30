@@ -118,9 +118,9 @@ libkmod_libkmod_internal_la_DEPENDENCIES  = $(libkmod_libkmod_la_DEPENDENCIES)
 libkmod_libkmod_internal_la_LIBADD = $(libkmod_libkmod_la_LIBADD)
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libkmod/libkmod.pc
-EXTRA_DIST += libkmod/libkmod.pc.in
-CLEANFILES += libkmod/libkmod.pc
+pkgconfig_DATA = libkmod/libkmod.pc tools/kmod.pc
+EXTRA_DIST += libkmod/libkmod.pc.in tools/kmod.pc.in
+CLEANFILES += libkmod/libkmod.pc tools/kmod.pc
 
 bashcompletiondir=@bashcompletiondir@
 dist_bashcompletion_DATA = \
