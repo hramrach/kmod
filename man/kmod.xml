@@ -72,6 +72,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term><command>config</command></term>
+        <listitem>
+          <para>Show compile time options in JSON.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><command>list</command></term>
         <listitem>
           <para>List the currently loaded modules.</para>
