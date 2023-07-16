@@ -3030,6 +3030,15 @@ static int do_depmod(int argc, char *argv[])
 	cfg.outdirnamelen = snprintf(cfg.outdirname, PATH_MAX,
 				     "%s" MODULE_DIRECTORY "/%s",
 				     out_root ?: (root ?: ""), cfg.kversion);
+	struct stat sb;
+	if (stat(cfg.dirname, &sb) != 0) {
+	cfg.dirnamelen = snprintf(cfg.dirname, PATH_MAX,
+				  "%s/lib/modules/%s",
+				  root ?: "", cfg.kversion);
+	cfg.outdirnamelen = snprintf(cfg.outdirname, PATH_MAX,
+				     "%s/lib/modules/%s",
+				     out_root ?: (root ?: ""), cfg.kversion);
+	}
 
 	if (optind == argc)
 		all = 1;
