@@ -94,6 +94,15 @@ AC_ARG_WITH([module_directory],
         [], [with_module_directory=/lib/modules])
 AC_SUBST([module_directory], [$with_module_directory])
 
+case $module_directory in
+	/lib/modules)
+	with_module_prefix=""
+	AC_SUBST([module_prefix], [$with_module_prefix]);;
+	*/lib/modules) with_module_prefix=$(dirname $with_module_directory)
+	with_module_prefix=$(dirname $with_module_prefix)
+	AC_SUBST([module_prefix], [$with_module_prefix]);;
+esac
+
 AC_ARG_WITH([zstd],
 	AS_HELP_STRING([--with-zstd], [handle Zstandard-compressed modules @<:@default=disabled@:>@]),
 	[], [with_zstd=no])
@@ -316,6 +325,7 @@ AC_MSG_RESULT([
 
 	module_directory:	${module_directory}
 	prefix:			${prefix}
+	module_prefix:		${module_prefix}
 	sysconfdir:		${sysconfdir}
 	distconfdir:		${distconfdir}
 	libdir:			${libdir}

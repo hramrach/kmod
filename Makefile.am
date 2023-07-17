@@ -20,6 +20,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DDISTCONFDIR=\""$(distconfdir)"\" \
+	-DMODULE_PREFIX=\""$(module_prefix)"\" \
 	-DMODULE_DIRECTORY=\""$(module_directory)"\" \
 	${zlib_CFLAGS}
 
